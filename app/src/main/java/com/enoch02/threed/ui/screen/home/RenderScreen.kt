@@ -3,6 +3,8 @@ package com.enoch02.threed.ui.screen.home
 import android.content.pm.ApplicationInfo
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ExperimentalLayoutApi
+import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
@@ -40,6 +42,7 @@ import io.github.sceneview.rememberModelLoader
 import io.github.sceneview.rememberNode
 import io.github.sceneview.rememberView
 
+@OptIn(ExperimentalLayoutApi::class)
 @Composable
 fun RenderScreen(
     modifier: Modifier = Modifier,
@@ -101,7 +104,7 @@ fun RenderScreen(
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(horizontal = 4.dp)
+                .padding(8.dp)
         ) {
             // For Debugging
             if (0 != context.applicationInfo.flags and ApplicationInfo.FLAG_DEBUGGABLE) {
@@ -112,12 +115,12 @@ fun RenderScreen(
                 )
             }
 
-            Row(
+            FlowRow(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
                 Button(
-                    content = { Text("Brief Dance") },
+                    content = { Text("Dance") },
                     onClick = {
                         viewModel.playDanceAnimation()
                     }
@@ -136,23 +139,11 @@ fun RenderScreen(
                         viewModel.stopDanceAnimation()
                     }
                 )
-            }
 
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween
-            ) {
                 Button(
                     content = { Text("Discuss") },
                     onClick = {
                         viewModel.playDiscussionAnimations()
-                    }
-                )
-
-                Button(
-                    content = { Text("Jump") },
-                    onClick = {
-
                     }
                 )
             }
