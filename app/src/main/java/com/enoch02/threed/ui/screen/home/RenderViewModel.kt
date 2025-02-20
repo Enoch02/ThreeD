@@ -1,5 +1,7 @@
 package com.enoch02.threed.ui.screen.home
 
+import android.content.Context
+import android.content.pm.ApplicationInfo
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
@@ -23,7 +25,7 @@ class RenderViewModel : ViewModel() {
     private val characterNodes = mutableStateListOf<ModelNode>()
     var animationNames by mutableStateOf("")
 
-    fun loadModels(loader: ModelLoader) {
+    fun loadModels(loader: ModelLoader, context: Context) {
         maleModelInstance = loader.createModelInstance(
             assetFileLocation = "models/male.glb"
         )
@@ -69,7 +71,9 @@ class RenderViewModel : ViewModel() {
             characterNodes.add(femaleNode) // 1
         }
 
-        loadAnimationNames()
+        if (0 != context.applicationInfo.flags and ApplicationInfo.FLAG_DEBUGGABLE) {
+            loadAnimationNames()
+        }
     }
 
     fun playDanceAnimation(forever: Boolean = false) {

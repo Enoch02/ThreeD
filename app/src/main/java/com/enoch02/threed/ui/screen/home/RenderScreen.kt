@@ -45,6 +45,7 @@ fun RenderScreen(
     modifier: Modifier = Modifier,
     viewModel: RenderViewModel = viewModel(),
 ) {
+    val context = LocalContext.current
     val engine = rememberEngine()
     val modelLoader = rememberModelLoader(engine)
     val environmentLoader = rememberEnvironmentLoader(engine)
@@ -62,7 +63,7 @@ fun RenderScreen(
     childNodes.add(centerNode)
 
     LaunchedEffect(Unit) {
-        viewModel.loadModels(loader = modelLoader)
+        viewModel.loadModels(loader = modelLoader, context = context)
     }
 
     Column(modifier = modifier) {
@@ -103,7 +104,6 @@ fun RenderScreen(
                 .padding(horizontal = 4.dp)
         ) {
             // For Debugging
-            val context = LocalContext.current
             if (0 != context.applicationInfo.flags and ApplicationInfo.FLAG_DEBUGGABLE) {
                 Text(
                     modifier = Modifier
@@ -232,7 +232,6 @@ fun RenderScreen(
                         )
                     }
                 }
-
             }
         }
     }
