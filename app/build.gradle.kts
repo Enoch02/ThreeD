@@ -65,6 +65,9 @@ dependencies {
     // Sceneview
     implementation(libs.sceneview)
 
+    implementation(libs.androidx.lifecycle.viewmodel.compose)
+    implementation(libs.androidx.material.icons.extended)
+
 //    api ("com.google.android.filament:filament-android:1.52.0")
 //    api ("com.google.android.filament:gltfio-android:1.52.0")
 //    api ("com.google.android.filament:filament-utils-android:1.52.0")
