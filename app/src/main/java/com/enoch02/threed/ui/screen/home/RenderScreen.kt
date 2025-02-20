@@ -1,12 +1,13 @@
 package com.enoch02.threed.ui.screen.home
 
 import android.content.pm.ApplicationInfo
+import android.util.Log
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -26,13 +27,20 @@ import androidx.compose.material3.OutlinedIconButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateListOf
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.composed
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import io.github.sceneview.Scene
 import io.github.sceneview.math.Position
+import io.github.sceneview.node.ModelNode
 import io.github.sceneview.rememberCameraManipulator
 import io.github.sceneview.rememberCameraNode
 import io.github.sceneview.rememberCollisionSystem
@@ -40,7 +48,14 @@ import io.github.sceneview.rememberEngine
 import io.github.sceneview.rememberEnvironmentLoader
 import io.github.sceneview.rememberModelLoader
 import io.github.sceneview.rememberNode
+import io.github.sceneview.rememberNodes
 import io.github.sceneview.rememberView
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
@@ -62,11 +77,51 @@ fun RenderScreen(
         centerNode.addChildNode(this)
     }
 
-    val childNodes = viewModel.childNodes
-    childNodes.add(centerNode)
+    val childNodes = rememberNodes {
+        add(centerNode)
+        add(
+            ModelNode(
+                modelInstance = modelLoader.createModelInstance(
+                    assetFileLocation = "models/floor_material.glb"
+                )
+            )
+        )
+    }
+    val characterNodes = remember { mutableStateListOf<ModelNode>() }
+    var animationNames by remember { mutableStateOf("") }
 
     LaunchedEffect(Unit) {
-        viewModel.loadModels(loader = modelLoader, context = context)
+        val maleNode = ModelNode(
+            modelInstance = modelLoader.createModelInstance(
+                assetFileLocation = "models/male.glb"
+            ),
+            scaleToUnits = 0.35f,
+            autoAnimate = false
+        ).apply {
+            setWorldPosition(x = -0.15f)
+            setRotation(y = 90f)
+            playAnimation(4)
+        }
+
+        childNodes.add(maleNode)
+        characterNodes.add(maleNode)
+
+        val femaleNode = ModelNode(
+            modelInstance = modelLoader.createModelInstance(
+                assetFileLocation = "models/female.glb"
+            ),
+            scaleToUnits = 0.35f
+        ).apply {
+            setWorldPosition(x = 0.15f)
+            setRotation(y = -90f)
+            playAnimation(4)
+        }
+
+        childNodes.add(femaleNode)
+        characterNodes.add(femaleNode)
+        viewModel.loadAnimationDurations(maleNode, femaleNode)
+        //TODO
+        animationNames = viewModel.loadAnimationNames(characterNodes[0], characterNodes[1])
     }
 
     Column(modifier = modifier) {
@@ -111,7 +166,7 @@ fun RenderScreen(
                 Text(
                     modifier = Modifier
                         .fillMaxWidth(),
-                    text = "Animation names: ${viewModel.animationNames}"
+                    text = "Animation names: $animationNames"
                 )
             }
 
@@ -122,29 +177,74 @@ fun RenderScreen(
                 Button(
                     content = { Text("Dance") },
                     onClick = {
-                        viewModel.playDanceAnimation()
-                    }
+                        /*viewModel.playDanceAnimation(characterNodes[0], characterNodes[1])*/
+                        val maleModel = characterNodes[0]
+                        val femaleModel = characterNodes[1]
+
+                        val danceAnimIndexes = (0..3).toList()
+                        val maleAnim = danceAnimIndexes.random()
+                        val femaleAnim = danceAnimIndexes.random()
+
+                        viewModel.stopAllAnimations(maleModel, femaleModel)
+
+                        maleModel.playAnimation(maleAnim, loop = false)
+                        femaleModel.playAnimation(femaleAnim, loop = false)
+                    },
+                    enabled = viewModel.animButtonsEnabled // TODO: unneeded
                 )
 
                 Button(
                     content = { Text("Dance Forever") },
                     onClick = {
-                        viewModel.playDanceAnimation(forever = true)
-                    }
+                        /*viewModel.playDanceAnimation(
+                            characterNodes[0],
+                            characterNodes[1],
+                            forever = true
+                        )*/
+                        //TODO: cycle dances
+                        val maleModel = characterNodes[0]
+                        val femaleModel = characterNodes[1]
+
+                        val danceAnimIndexes = (0..3).toList()
+                        val maleAnim = danceAnimIndexes.random()
+                        val femaleAnim = danceAnimIndexes.random()
+
+                        viewModel.stopAllAnimations(maleModel, femaleModel)
+
+                        maleModel.playAnimation(maleAnim)
+                        femaleModel.playAnimation(femaleAnim)
+                    },
+                    enabled = viewModel.animButtonsEnabled
                 )
 
                 Button(
                     content = { Text("Stop") },
                     onClick = {
-                        viewModel.stopDanceAnimation()
+//                        viewModel.stopDanceAnimation()
+//                        viewModel.stopAnimationsThenIdle()
+                        val maleModel = characterNodes[0]
+                        val femaleModel = characterNodes[1]
+
+                        viewModel.stopAllAnimations(maleModel, femaleModel)
                     }
                 )
 
                 Button(
                     content = { Text("Discuss") },
                     onClick = {
-                        viewModel.playDiscussionAnimations()
-                    }
+                        /*viewModel.playDiscussionAnimations(characterNodes[0], characterNodes[1])*/
+
+                        val maleModel = characterNodes[0]
+                        val femaleModel = characterNodes[1]
+                        val discussionIndexes = (5..7).toList()
+
+                        // stop animation in case any one is playing??
+                        viewModel.stopAllAnimations(maleModel, femaleModel)
+
+                        maleModel.playAnimation(discussionIndexes.random())
+                        femaleModel.playAnimation(discussionIndexes.random())
+                    },
+                    enabled = viewModel.animButtonsEnabled
                 )
             }
 
