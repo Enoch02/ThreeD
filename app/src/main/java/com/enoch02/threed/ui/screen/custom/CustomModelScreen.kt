@@ -50,7 +50,7 @@ import java.io.FileOutputStream
 import kotlin.time.Duration.Companion.seconds
 import kotlin.time.DurationUnit
 
-@OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun CustomModelScreen(navController: NavController) {
     val context = LocalContext.current

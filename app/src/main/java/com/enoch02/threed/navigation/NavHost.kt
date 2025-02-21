@@ -1,11 +1,9 @@
 package com.enoch02.threed.navigation
 
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.Modifier
-import androidx.navigation.compose.composable
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.enoch02.threed.ui.screen.custom.CustomModelScreen
 import com.enoch02.threed.ui.screen.demo.RenderScreen
@@ -22,7 +20,7 @@ fun TDNavHost(navController: NavHostController = rememberNavController()) {
             }
 
             composable(Destination.DemoScene.route) {
-                RenderScreen(modifier = Modifier.fillMaxSize())
+                RenderScreen(navController = navController)
             }
 
             composable(Destination.LoadModel.route) {
