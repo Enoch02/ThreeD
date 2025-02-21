@@ -1,4 +1,4 @@
-package com.enoch02.threed.ui.screen.home
+package com.enoch02.threed.ui.screen.demo
 
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf

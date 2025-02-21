@@ -8,11 +8,9 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
 import androidx.compose.ui.Modifier
-import com.enoch02.threed.ui.screen.home.RenderScreen
+import com.enoch02.threed.navigation.TDNavHost
+import com.enoch02.threed.ui.screen.demo.RenderScreen
 import com.enoch02.threed.ui.theme.ThreeDTheme
-import dev.romainguy.kotlin.math.Float3
-import io.github.sceneview.model.ModelInstance
-import io.github.sceneview.node.ModelNode
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -20,13 +18,7 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         setContent {
             ThreeDTheme {
-                Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-                    RenderScreen(
-                        modifier = Modifier
-                            .padding(innerPadding)
-                            .fillMaxSize()
-                    )
-                }
+                TDNavHost()
             }
         }
     }
