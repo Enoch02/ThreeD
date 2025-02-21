@@ -166,7 +166,6 @@ fun RenderScreen(
                         }
                     )
 
-                    // TODO: create a toggle that switches the character being controlled
                     Column(
                         modifier = Modifier
                             .fillMaxSize()
@@ -213,8 +212,20 @@ fun RenderScreen(
                                         viewModel.stopAllAnimations(maleModel!!, femaleModel!!)
                                     }
 
-                                    maleModel?.playAnimation(maleAnim)
-                                    femaleModel?.playAnimation(femaleAnim)
+                                    /*maleModel?.playAnimation(maleAnim)
+                                    femaleModel?.playAnimation(femaleAnim)*/
+                                    maleModel?.let {
+                                        viewModel.cycleDanceAnimationsMale(
+                                            it,
+                                            danceAnimIndexes.shuffled()
+                                        )
+                                    }
+                                    femaleModel?.let {
+                                        viewModel.cycleDanceAnimationsFemale(
+                                            it,
+                                            danceAnimIndexes.shuffled()
+                                        )
+                                    }
                                 }
                             )
 
@@ -224,6 +235,8 @@ fun RenderScreen(
                                     if (maleModel != null && femaleModel != null) {
                                         viewModel.stopAllAnimations(maleModel!!, femaleModel!!)
                                     }
+
+                                    viewModel.stopCycling()
                                 }
                             )
 
@@ -263,8 +276,13 @@ fun RenderScreen(
 
                                         Icon(
                                             imageVector = vector,
+                                            tint = if (moveMaleModel) {
+                                                androidx.compose.ui.graphics.Color.Blue
+                                            } else {
+                                                androidx.compose.ui.graphics.Color(255, 105, 180)
+                                            },
                                             contentDescription = null,
-                                            modifier = Modifier.size(SwitchDefaults.IconSize),
+                                            modifier = Modifier.size(SwitchDefaults.IconSize)
                                         )
                                     }
                                 )

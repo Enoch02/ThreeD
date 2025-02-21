@@ -1,16 +1,20 @@
 package com.enoch02.threed.ui.screen.demo
 
-import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dev.romainguy.kotlin.math.Float3
 import io.github.sceneview.node.ModelNode
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 class RenderViewModel : ViewModel() {
     private val maleAnimDurations = mutableMapOf<Int, Float>()
     private val femaleAnimDurations = mutableMapOf<Int, Float>()
+
+    private var animationJob1: Job? = null
+    private var animationJob2: Job? = null
+
 
     fun loadAnimationDurations(maleModel: ModelNode, femaleModel: ModelNode) {
         for (i in 0..maleModel.animationCount) {
@@ -61,8 +65,6 @@ class RenderViewModel : ViewModel() {
         val duration = maleAnimDurations[9] ?: 0f
         if (duration <= 0f) return
 
-        Log.e("TAG", "moveMaleForward: $direction")
-
         val startPosition = model.position.x
         val targetPosition = if (direction > 0) {
             startPosition + 0.5f
@@ -103,6 +105,7 @@ class RenderViewModel : ViewModel() {
             startPosition + 0.5f
         }
 
+        model.playAnimation(8, loop = false)
         model.playAnimation(8, loop = false)
 
         viewModelScope.launch {
@@ -197,6 +200,41 @@ class RenderViewModel : ViewModel() {
 
             stopAllAnimations(model)
         }
+    }
+
+    fun cycleDanceAnimationsMale(model: ModelNode, animationIndices: List<Int>) {
+        animationJob1?.cancel()
+
+        animationJob1 = viewModelScope.launch {
+            while (true) {
+                for (animIndex in animationIndices) {
+                    val duration = maleAnimDurations[animIndex] ?: 0f
+
+                    model.playAnimation(animIndex, loop = false)
+                    delay((duration * 1000).toLong() + 1000)
+                }
+            }
+        }
+    }
+
+    fun cycleDanceAnimationsFemale(model: ModelNode, animationIndices: List<Int>) {
+        animationJob2?.cancel()
+
+        animationJob2 = viewModelScope.launch {
+            while (true) {
+                for (animIndex in animationIndices) {
+                    val duration = femaleAnimDurations[animIndex] ?: 0f
+
+                    model.playAnimation(animIndex, loop = false)
+                    delay((duration * 1000).toLong() + 1000)
+                }
+            }
+        }
+    }
+
+    fun stopCycling() {
+        animationJob1?.cancel()
+        animationJob2?.cancel()
     }
 }
 
